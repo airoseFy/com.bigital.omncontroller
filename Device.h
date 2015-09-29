@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 #include "NptSockets.h"
+#include "Log.h"
 
 using namespace std;
 
@@ -35,7 +36,7 @@ public:
         TAB = 3,
     };
     
-    Device(Type type):m_Type(type) {}
+    Device(Type type);
     virtual ~Device() {}
     
     //Methods

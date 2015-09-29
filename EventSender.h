@@ -15,7 +15,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
-#include <deque>
+#include <queue>
 #include "Event.h"
 #include "NptSockets.h"
 
@@ -44,15 +44,18 @@ public:
 	virtual void SetTarget(NPT_SocketAddress& target) {}
 	
 protected:
-	virtual void ThreadLoop();
+	virtual void PollingLoop();
+	virtual void SendingLoop();
 	
 private:
 	bool			  m_Started;
-	std::thread		  m_Task;
-	std::deque<Event> m_Events;
+	std::thread		  m_PollingTask;
+	std::thread		  m_SendingTask;
+	std::queue<Event> m_Events;
 	
 	//for debug
-	std::deque<int>	m_IntQueue;
+	std::queue<int>	m_InputQueue;
+	std::queue<int> m_CachedQueue;
 	std::mutex m_Mutex;
 	std::condition_variable m_Condition;
 };

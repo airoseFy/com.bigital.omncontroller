@@ -55,7 +55,7 @@ void DiscoveryTask::OnRun()
 	bool bSetup = false;
 	NPT_SocketAddress target;
 	std::string extra;
-	while(m_Started){	
+	do{
 		if(!bSetup)
 		{
 			if(!(bSetup = m_Discovery.Start()))
@@ -83,8 +83,8 @@ void DiscoveryTask::OnRun()
 			default:
 				std::this_thread::sleep_for(std::chrono::milliseconds(300));
 				break;
-		}
-	}
+		}		
+	}while(m_Started);
 	
 	m_Discovery.Stop();
 }
@@ -140,12 +140,11 @@ void Discovery::Stop()
 DiscoveryCommand Discovery::ReceiveCommand(NPT_SocketAddress& target, std::string& extra)
 {
 	DiscoveryCommand command = DiscoveryCommand::NONE;
-	
-	NPT_SocketAddress sockAddr;
+
 	NPT_DataBuffer    packet(2048);
-	if(NPT_SUCCEEDED(m_Socket.Receive(packet, &sockAddr)))
+	if(NPT_SUCCEEDED(m_Socket.Receive(packet, &target)))
 	{
-			  NPT_String ip 	= sockAddr.GetIpAddress().ToString();
+			  NPT_String ip 	= target.GetIpAddress().ToString();
 			  NPT_Size   size 	= packet.GetDataSize();
 		const NPT_Byte*  buffer = packet.GetData(); 	
 
