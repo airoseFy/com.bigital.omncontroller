@@ -25,13 +25,13 @@ bool EventSender::Start()
 		m_SendingTask = std::thread(std::bind(&EventSender::SendingLoop, this));
 		m_SendingTask.detach();
 
-		for(; ;){
+		/*for(; ;){
 			for(int i = 0; i < 20; ++i)
 			{
 				m_InputQueue.push(i);
 			}
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
-		}
+		}*/
 		return true;
 	}
 	

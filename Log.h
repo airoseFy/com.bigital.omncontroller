@@ -28,7 +28,8 @@ inline void debug(const char* tag, const char* format, ...)
 	#else
 		fprintf(stdout, "|@@bigital@@|");
 		fprintf(stdout, "|##%s##| = ", tag);
-		fprintf(stdout, format, args);
+		vfprintf(stdout, format, args);
+        fprintf(stdout, "\n");
 	#endif
 	
 	va_end(args);
@@ -46,8 +47,9 @@ inline void error(const char* tag, const char* format, ...)
 	#else
 		fprintf(stderr, "|@@bigital@@|");
 		fprintf(stderr, "|##%s##| = ", tag);
-		fprintf(stderr, format, args);
-	#endif	
+		vfprintf(stderr, format, args);
+        fprintf(stderr, "\n");
+	#endif
 	
 	va_end(args);
 }

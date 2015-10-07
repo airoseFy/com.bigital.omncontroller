@@ -12,30 +12,33 @@
 /*----------------------------------------
  |	Includes
  +---------------------------------------*/
-#include "IUIDelegate.h"
+#include <vector>
+#include "Device.h"
 
-#ifdef __ANDROID__
-#include "AndroidUIDelegate.h"
-#endif
+class IUIDelegate{
+public:
+    virtual ~IUIDelegate() {}
+    
+    virtual void Init(void* context) = 0;
+    virtual void OnDeviceDataChanged(std::vector<Device> devices) = 0;
+};
 
-#include <mutex>
+class UIDelegate:public IUIDelegate{
+public:
+    explicit UIDelegate();
+    ~UIDelegate()
+    {
+        if(m_Delegate != nullptr) delete m_Delegate;
+    }
+    
+    inline virtual void Init(void* context) { m_Delegate->Init(context); }
+    
+    inline virtual void OnDeviceDataChanged(std::vector<Device> devices)
+    {
+        m_Delegate->OnDeviceDataChanged(devices);
+    }
+protected:
+    IUIDelegate*    m_Delegate;
+};
 
-std::mutex instance_mutex;
-UIDelegate* uiDelegate = nullptr;
-
-UIDelegate* getUIDelegate()
-{
-	if(nullptr == uiDelegate)
-	{
-		std::unique_lock<std::mutex> lk(instance_mutex);
-		if(nullptr == uiDelegate)
-		{
-			#ifdef __ANDROID__
-				uiDelegate = static_cast<UIDelegate*>(new AndroidUIDelegate);
-			#endif
-		}
-	}
-	
-	return uiDelegate;
-}
 #endif /*_UIDELEGATE_H_*/

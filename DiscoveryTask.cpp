@@ -67,6 +67,7 @@ void DiscoveryTask::OnRun()
 		}
 				
 		DiscoveryCommand command = m_Discovery.ReceiveCommand(target, extra);
+//        debug(TAG, "onRun extra = %s", extra.c_str());
 		switch(command){
 			case DiscoveryCommand::JOIN:
 				m_Discovery.OnJoinCommandReceived(target, extra);
@@ -117,6 +118,7 @@ bool Discovery::Start()
 		debug(TAG, "Discovery Start JoinGroup Failed!");
 		return false;
 	}else{
+        m_Socket.SetWriteTimeout(300);
 		m_Socket.SetReadTimeout(300);
 		if(m_Device.GetDeviceType() == Device::Type::TV || m_Device.GetDeviceType() == Device::Type::PC){
 			this->SendJoinCommand();
@@ -141,21 +143,32 @@ DiscoveryCommand Discovery::ReceiveCommand(NPT_SocketAddress& target, std::strin
 {
 	DiscoveryCommand command = DiscoveryCommand::NONE;
 
-	NPT_DataBuffer    packet(2048);
-	if(NPT_SUCCEEDED(m_Socket.Receive(packet, &target)))
+    const NPT_Size bufferSize = 2048;
+	NPT_DataBuffer bufferPacket(bufferSize);
+	if(NPT_SUCCEEDED(m_Socket.Receive(bufferPacket, &target)))
 	{
 			  NPT_String ip 	= target.GetIpAddress().ToString();
-			  NPT_Size   size 	= packet.GetDataSize();
-		const NPT_Byte*  buffer = packet.GetData(); 	
+			  NPT_Size   size 	= bufferPacket.GetDataSize();
+		const NPT_Byte*  buffer = bufferPacket.GetData();
 
 		/****************************************************************
 		*		parse command
 		****************************************************************/
+        debug(TAG, "ReceiveCommand packetSize = %d", size);
 		if(size >= 4 /*Min Size*/ && buffer[0] == 0xEA /*Magic Code*/ && buffer[3] <= 4)
 		{
 			command = (DiscoveryCommand) buffer[3];
-			extra   = (char*)(buffer+4);
-		}			
+            int extraSize = 0;
+            memcpy(&extraSize, &buffer[4], sizeof(int));
+            debug(TAG, "ReceiveCommand extraSize = %d", extraSize);
+            if(extraSize > 0)
+            {
+                char* _extra = (char*)malloc(extraSize);
+                memcpy(_extra, &buffer[4+sizeof(int)], extraSize);
+                extra = _extra;
+                free(_extra);
+            }
+		}
 	}
 		
 	return command;
@@ -163,15 +176,21 @@ DiscoveryCommand Discovery::ReceiveCommand(NPT_SocketAddress& target, std::strin
 
 void Discovery::SendCommand(DiscoveryCommand command, const std::string& extra)
 {
-	NPT_Size  extraSize  = extra.size();
-	NPT_Size  bufferSize = extraSize + 4;
+    int  extraSize  = extra.size();
+	NPT_Size  bufferSize = extraSize + 4+sizeof(extraSize)+1;
 	NPT_Byte* buffer     =(NPT_Byte*)malloc(bufferSize);
 	
-	buffer[0] = PROTOCOL_MAGIC;
-	buffer[1] = MAJOR_VERSION;
-	buffer[2] = MINOR_VERSION;
-	buffer[3] =(NPT_Byte)command;
-	memcpy((void*)(buffer+4), (void*)extra.c_str(), extraSize);
+    NPT_Byte* pos = buffer;
+	pos[0] = PROTOCOL_MAGIC;
+	pos[1] = MAJOR_VERSION;
+	pos[2] = MINOR_VERSION;
+	pos[3] =(NPT_Byte)command;
+    
+    pos = pos + 4;
+    memcpy(pos, &extraSize, sizeof(int));
+    pos += sizeof(int);
+	memcpy(pos, (void*)extra.c_str(), extraSize);
+    *(pos+extraSize) = 0;
 	
 	NPT_DataBuffer packet(buffer, bufferSize);
 	NPT_SocketAddress socketAddr(m_MuticastIpAddr, MULTICAST_PORT);
@@ -183,13 +202,14 @@ void Discovery::SendCommand(DiscoveryCommand command, const std::string& extra)
 void Discovery::SendSearchCommand()
 {
 	debug(TAG, "SendSearchCommand");
-	this->SendCommand(DiscoveryCommand::SEARCH, std::string());
+	this->SendCommand(DiscoveryCommand::SEARCH, string());
 }
 
 void Discovery::SendJoinCommand()
 {
 	debug(TAG, "SendJoinCommand");
-	this->SendCommand(DiscoveryCommand::JOIN, std::string());
+    string extra = m_Device.GetDeviceId()+":"+m_Device.GetDeviceName()+":"+m_Device.GetDisplayName();
+	this->SendCommand(DiscoveryCommand::JOIN, extra);
 }
 
 void Discovery::SendJoinCommand(NPT_SocketAddress& target)
@@ -225,6 +245,7 @@ void Discovery::OnSearchCommandReceived(const NPT_SocketAddress& target, const s
 void Discovery::OnJoinCommandReceived(const NPT_SocketAddress& target, const std::string& extra)
 {
 	debug(TAG, "OnJoinCommandReceived = %s", target.GetIpAddress().ToString().GetChars());
+    debug(TAG, "OnJoinCommandReceived extra= %s", extra.c_str());
 }
 
 void Discovery::OnLeaveCommandReceived(const NPT_SocketAddress& target, const std::string& extra)

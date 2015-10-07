@@ -62,21 +62,20 @@ class ICtrlApplication:public IApplication{
 public:
 	ICtrlApplication()
 	:m_Device(Device::Type::PHONE), m_DiscoveryTask(m_Device)
-	{	
-
+	{
 	}
 	virtual ~ICtrlApplication() {}
 	
 	virtual void OnCreate() 
 	{
 		m_DiscoveryTask.Start();
-		m_EventSender.Start();
+		//m_EventSender.Start();
 	}
 	
 	virtual void OnDestroy()
 	{
 		m_DiscoveryTask.Stop();
-		m_EventSender.Stop();
+		//m_EventSender.Stop();
 	}
 	
 	virtual void OnResume() {}
@@ -85,7 +84,7 @@ public:
 private:
 	Device	m_Device;
 	DiscoveryTask m_DiscoveryTask;
-	EventSender m_EventSender;	
+	EventSender m_EventSender;
 };
 
 #endif /*_APPLICATION_H_*/

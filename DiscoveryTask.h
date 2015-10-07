@@ -72,6 +72,7 @@ protected:
 	void SendCommand(DiscoveryCommand command, const std::string& extra);
 	
 private:
+          DeviceManager m_DevManager;
 	const Device m_Device;
 		  NPT_UdpMulticastSocket	m_Socket;
 		  NPT_IpAddress	m_MuticastIpAddr;
@@ -102,7 +103,7 @@ public:
 	
 private:
 	Discovery 	m_Discovery;
-	bool		m_Started ;
+    bool		m_Started {false};
 };
 
 #endif /* _DISCOVERY_TASK_H_ */

@@ -33,7 +33,7 @@ public:
 
 class EventSender:public IEventSender{
 public:
-			 EventSender():m_Started(false) {};
+    explicit EventSender():m_Started(false) {};
 	virtual ~EventSender() = default;
 	
 	virtual bool Start();

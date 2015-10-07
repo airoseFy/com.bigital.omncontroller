@@ -27,6 +27,8 @@ struct Resolution{
     float h;    //dimension = px
 };
 
+class DeviceManager;
+
 class Device{
 public:
     enum class Type{
@@ -36,8 +38,8 @@ public:
         TAB = 3,
     };
     
-    Device(Type type);
-    virtual ~Device() {}
+    explicit Device(Type type);
+    virtual ~Device() = default;
     
     //Methods
     inline Type  GetDeviceType() const { return m_Type; }
@@ -46,10 +48,9 @@ public:
     inline const string& GetDeviceId() const { return m_DeviceId; }
     inline const Resolution& GetResolution() const { return m_Res; }
     
-    inline void SetDeviceName(const string& name) { m_DeviceName = name; }
     inline void SetDisplayName(const string& displayName) { m_DisplayName = displayName; }
-    inline void SetDeviceId(const string& id) { m_DeviceId = id; }
-    inline void SetResolution(const Resolution& resolution) { m_Res = resolution; }
+    
+    friend class DeviceManager;
     
     //Members
 private:
@@ -60,51 +61,45 @@ private:
     Resolution  m_Res;
 };
 
-typedef pair<Device, NPT_SocketAddress> device_ip_pair;
+struct IP_Device{
+    IP_Device(const Device& device, const NPT_SocketAddress& addr)
+    :dev(device), sockAddr(addr)
+    {
+        
+    }
+    Device dev;
+    NPT_SocketAddress sockAddr;
+};
 
 class DeviceManager{
 public:
-	virtual ~DeviceManager() = default;
+     DeviceManager() = default;
+    ~DeviceManager() = default;
 	
 	inline void AddDevice(const Device& device, const NPT_SocketAddress& addr)
 	{
-		for(vector<device_ip_pair>::const_iterator it = m_DeviceList.cbegin(); it != m_DeviceList.cend(); ++it)
+		for(auto it = m_DeviceList.cbegin();
+            it != m_DeviceList.cend(); ++it)
 		{
-			
+            if((*it).dev.m_DeviceId == device.m_DeviceId) break;
 		}
+        
+        m_DeviceList.emplace_back(device, addr);
 	}
 	
 	void RemoveDevice(const Device& device) {}
+    
 	const Device* GetDevice(const string& deviceId) { return NULL; }
-
-	//for debug
-	inline void AddDevice(const NPT_SocketAddress& addr)
-	{
-		for(auto it = m_IpList.cbegin(); it != m_IpList.cend(); ++it)
-		{
-			if(*it == addr) return ;
-		}
-		
-		m_IpList.push_back(addr);
-	}
-	
-	inline void RemoveDevice(const NPT_SocketAddress& addr)
-	{
-		for(auto it = m_IpList.begin(); it != m_IpList.end(); ++it)
-		{
-			if(*it == addr) m_IpList.erase(it) ;
-		}
-	}
-	
-	inline const vector<NPT_SocketAddress>& GetDeviceList(void)
-	{
-		return m_IpList;
-	}
+    
+    //for debug
+    void PrintAllDevices(void) const
+    {
+        for (auto it = m_DeviceList.cbegin(); it != m_DeviceList.cend(); ++it) {
+            debug("DeviceManager", "Print DeviceId = %s", (*it).dev.m_DeviceId.c_str());
+        }
+    }
 	
 private:
-	vector<device_ip_pair>	m_DeviceList;
-	
-	//for debug
-	vector<NPT_SocketAddress> m_IpList;
+	vector<IP_Device>	m_DeviceList;
 };
 #endif /* _DEVICE_H_ */

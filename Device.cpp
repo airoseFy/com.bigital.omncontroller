@@ -1,31 +1,42 @@
 //
 //  Device.cpp
-//  Platinum
+//  Bigital
 //
-//  Created by apple on 15/9/20.
+//  Created by bigital on 15/9/20.
 //
 //
 
 #include "Device.h"
+#include "Hardware.h"
+#include "NptSystem.h"
 
 #define TAG "Device"
+
+static const char* GetMachineName(void)
+{
+    const char* machineName = NULL;
+    NPT_String _machineName ;
+    if(NPT_SUCCEEDED(NPT_GetSystemMachineName(_machineName)))
+    {
+        debug("Device", "_machineName = %s", _machineName.GetChars());
+        machineName = _machineName.GetChars();
+    }
+    return machineName;
+}
 
 Device::Device(Type type)
 :m_Type(type)
 {
-	NPT_List<NPT_NetworkInterface*> interfaces;
-    NPT_Result result = NPT_NetworkInterface::GetNetworkInterfaces(interfaces);
-    if (NPT_FAILED(result)) {
-        debug(TAG, "GetNetworkInterfaces() failed");
-    }else if(interfaces.GetItemCount() > 0){
-		//NPT_NetworkInterface* netInterface = *interfaces.GetFirstItem();
-		//debug(TAG, "NPT_NetworkInterface MacAddress = %s", netInterface->GetMacAddress().ToString().GetChars());
-		    NPT_List<NPT_NetworkInterface*>::Iterator iface = interfaces.GetFirstItem();
-		while (iface) {
-			debug(TAG, "  name  = %s", (*iface)->GetName().GetChars());
-			debug(TAG, "  flags = %x [ ", (*iface)->GetFlags());
-			debug(TAG, "  mac   = %s (type=%d)", (*iface)->GetMacAddress().ToString().GetChars(), (*iface)->GetMacAddress().GetType());
-			++iface;
-		}
-	}
+    //get machine name
+    NPT_String machineName;
+    if(NPT_SUCCEEDED(NPT_GetSystemMachineName(machineName)))
+    {
+        m_DeviceName = machineName.GetChars();
+        m_DisplayName = m_DeviceName;
+    }
+    
+    m_DeviceId = Hardware::Instance()->GetUDID();
+    debug("Device", "m_DeviceName = %s", m_DeviceName.c_str());
+    debug("Device", "m_DisplayName = %s", m_DisplayName.c_str());
+    debug("Device", "m_DeviceId = %s", m_DeviceId.c_str());
 }
