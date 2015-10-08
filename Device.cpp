@@ -27,6 +27,7 @@ static const char* GetMachineName(void)
 Device::Device(Type type)
 :m_Type(type)
 {
+	debug("Device", "Constructor");
     //get machine name
     NPT_String machineName;
     if(NPT_SUCCEEDED(NPT_GetSystemMachineName(machineName)))
@@ -35,7 +36,9 @@ Device::Device(Type type)
         m_DisplayName = m_DeviceName;
     }
     
+	debug("Device", "GetUDID Begin");
     m_DeviceId = Hardware::Instance()->GetUDID();
+	debug("Device", "GetUDID End");
     debug("Device", "m_DeviceName = %s", m_DeviceName.c_str());
     debug("Device", "m_DisplayName = %s", m_DisplayName.c_str());
     debug("Device", "m_DeviceId = %s", m_DeviceId.c_str());

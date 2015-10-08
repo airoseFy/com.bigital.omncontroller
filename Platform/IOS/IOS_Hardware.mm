@@ -1,8 +1,8 @@
 //
 //  IOS_Hardware.cpp
-//  Platinum
+//  Bigital
 //
-//  Created by apple on 15/10/2.
+//  Created by bigital on 15/10/2.
 //
 //
 
