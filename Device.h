@@ -38,7 +38,43 @@ public:
         TAB = 3,
     };
     
+	static const string& TypeToString(Type type)
+	{
+		string str;
+		switch(type){
+			case Type::PHONE:
+				str = "PHONE";
+				break;
+			case Type::TAB:
+				str = "TAB";
+				break;
+			case Type::PC:
+				str = "PC";
+				break;
+			case Type::TV:
+			default:
+				str = "TV";
+				break;
+		}
+		return std::move(str);
+	}
+	
+	static const Type StringToType(const string& typeStr)
+	{
+		if("PHONE" == typeStr){
+			return Type::PHONE;
+		}else if("TAB" == typeStr){
+			return Type::TAB;
+		}else if("PC" == typeStr){
+			return Type::PC;
+		}else{
+			return Type::TV;
+		}		
+	}
+	
     explicit Device(Type type);
+	//Device(Type type, const string& deviceName, const string& displayName, const string& deviceId);
+	//Device(Type type, const string&& deviceName, const string&& displayName, const string&& deviceId);
     virtual ~Device() = default;
     
     //Methods

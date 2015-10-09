@@ -208,7 +208,23 @@ void Discovery::SendSearchCommand()
 void Discovery::SendJoinCommand()
 {
 	debug(TAG, "SendJoinCommand");
-    string extra = m_Device.GetDeviceId()+":"+m_Device.GetDeviceName()+":"+m_Device.GetDisplayName();
+	string extra;
+	switch(m_Device.GetDeviceType()){
+		case Device::Type::PHONE:
+			extra = "PHONE";
+			break;
+		case Device::Type::TAB:
+			extra = "TAB";
+			break;
+		case Device::Type::PC:
+			extra = "PC";
+			break;
+		case Device::Type::TV:
+		default:
+			extra = "TV";
+			break;
+		}
+    extra += ":"+m_Device.GetDeviceId()+":"+m_Device.GetDeviceName()+":"+m_Device.GetDisplayName();
 	this->SendCommand(DiscoveryCommand::JOIN, extra);
 }
 
@@ -245,6 +261,7 @@ void Discovery::OnSearchCommandReceived(const NPT_SocketAddress& target, const s
 void Discovery::OnJoinCommandReceived(const NPT_SocketAddress& target, const std::string& extra)
 {
 	if(m_Device.GetDeviceType() == Device::Type::PHONE || m_Device.GetDeviceType() == Device::Type::TAB){
+		int first = extra.find_first_of(':');
 		debug(TAG, "OnJoinCommandReceived = %s", target.GetIpAddress().ToString().GetChars());
 		debug(TAG, "OnJoinCommandReceived extra= %s", extra.c_str());		
 	}
