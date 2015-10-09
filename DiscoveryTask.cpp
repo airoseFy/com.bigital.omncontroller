@@ -177,7 +177,7 @@ DiscoveryCommand Discovery::ReceiveCommand(NPT_SocketAddress& target, std::strin
 void Discovery::SendCommand(DiscoveryCommand command, const std::string& extra)
 {
     int  extraSize  = extra.size();
-	NPT_Size  bufferSize = extraSize + 4+sizeof(extraSize)+1;
+	NPT_Size  bufferSize = extraSize + 4+sizeof(extraSize);
 	NPT_Byte* buffer     =(NPT_Byte*)malloc(bufferSize);
 	
     NPT_Byte* pos = buffer;
@@ -190,7 +190,7 @@ void Discovery::SendCommand(DiscoveryCommand command, const std::string& extra)
     memcpy(pos, &extraSize, sizeof(int));
     pos += sizeof(int);
 	memcpy(pos, (void*)extra.c_str(), extraSize);
-    *(pos+extraSize) = 0;
+    //*(pos+extraSize) = 0;
 	
 	NPT_DataBuffer packet(buffer, bufferSize);
 	NPT_SocketAddress socketAddr(m_MuticastIpAddr, MULTICAST_PORT);
@@ -244,8 +244,10 @@ void Discovery::OnSearchCommandReceived(const NPT_SocketAddress& target, const s
 
 void Discovery::OnJoinCommandReceived(const NPT_SocketAddress& target, const std::string& extra)
 {
-	debug(TAG, "OnJoinCommandReceived = %s", target.GetIpAddress().ToString().GetChars());
-    debug(TAG, "OnJoinCommandReceived extra= %s", extra.c_str());
+	if(m_Device.GetDeviceType() == Device::Type::PHONE || m_Device.GetDeviceType() == Device::Type::TAB){
+		debug(TAG, "OnJoinCommandReceived = %s", target.GetIpAddress().ToString().GetChars());
+		debug(TAG, "OnJoinCommandReceived extra= %s", extra.c_str());		
+	}
 }
 
 void Discovery::OnLeaveCommandReceived(const NPT_SocketAddress& target, const std::string& extra)

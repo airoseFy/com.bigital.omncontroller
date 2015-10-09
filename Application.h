@@ -69,13 +69,13 @@ public:
 	virtual void OnCreate() 
 	{
 		m_DiscoveryTask.Start();
-		//m_EventSender.Start();
+		m_EventSender.Start();
 	}
 	
 	virtual void OnDestroy()
 	{
 		m_DiscoveryTask.Stop();
-		//m_EventSender.Stop();
+		m_EventSender.Stop();
 	}
 	
 	virtual void OnResume() {}

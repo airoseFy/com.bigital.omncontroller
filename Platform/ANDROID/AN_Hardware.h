@@ -26,10 +26,16 @@ public:
         return m_UDID;
     }
 
+	string const& GetDeviceName(void) final
+	{
+		return m_DeviceName;
+	}
+	
 public:
 	static void Init(JNIEnv* env, jobject context);
 private:
 	static string m_UDID;
+	static string m_DeviceName;
 };
 
 #endif /*_AN_HARDWARE_H_*/

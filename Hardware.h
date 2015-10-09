@@ -1,8 +1,8 @@
 //
 //  Hardware.hpp
-//  Platinum
+//  Bigital
 //
-//  Created by apple on 15/10/2.
+//  Created by bigital on 15/10/2.
 //
 //
 
@@ -21,6 +21,7 @@ public:
     virtual ~IHardware() = default;
     
     virtual string const& GetUDID(void) = 0;
+	virtual string const& GetDeviceName(void) = 0;
 };
 
 class Hardware:public IHardware{
@@ -40,6 +41,11 @@ public:
         return m_Delegate->GetUDID();
     }
     
+	virtual string const& GetDeviceName(void)
+	{
+		return m_Delegate->GetDeviceName();
+	}
+	
     static Hardware*  Instance(void);
     
 protected:
