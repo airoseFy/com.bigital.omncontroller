@@ -27,14 +27,16 @@ public:
     ~IOS_Hardware() ;
     
     virtual string const& GetUDID(void);
+    virtual string const& GetDeviceName();
 
 protected:
     IOS_OC_Hardware* m_Impl;
     string           m_UDID;
+    string           m_DeviceName;
 };
 
 IOS_Hardware::IOS_Hardware()
-:m_Impl([[IOS_OC_Hardware alloc] init]), m_UDID([m_Impl GetUDID])
+:m_Impl([[IOS_OC_Hardware alloc] init]), m_UDID([m_Impl GetUDID]), m_DeviceName([m_Impl GetDeviceName])
 {
     
 }
@@ -47,6 +49,11 @@ IOS_Hardware::~IOS_Hardware()
 string const&  IOS_Hardware::GetUDID(void)
 {
     return m_UDID;
+}
+
+string const& IOS_Hardware::GetDeviceName()
+{
+    return m_DeviceName;
 }
 
 //defination Hardware

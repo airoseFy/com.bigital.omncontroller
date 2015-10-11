@@ -10,6 +10,7 @@
 #include <thread>
 #include "Common.h"
 #include "Log.h"
+#include "Utils.h"
 #include "DiscoveryTask.h"
 
 /*---------------------------------------
@@ -190,7 +191,6 @@ void Discovery::SendCommand(DiscoveryCommand command, const std::string& extra)
     memcpy(pos, &extraSize, sizeof(int));
     pos += sizeof(int);
 	memcpy(pos, (void*)extra.c_str(), extraSize);
-    //*(pos+extraSize) = 0;
 	
 	NPT_DataBuffer packet(buffer, bufferSize);
 	NPT_SocketAddress socketAddr(m_MuticastIpAddr, MULTICAST_PORT);
@@ -208,24 +208,35 @@ void Discovery::SendSearchCommand()
 void Discovery::SendJoinCommand()
 {
 	debug(TAG, "SendJoinCommand");
+    const string space = " ";
+    string type;
+    string id = m_Device.GetDeviceId();
+    string name = m_Device.GetDeviceName();
+    string display_name = m_Device.GetDisplayName();
 	string extra;
+    
 	switch(m_Device.GetDeviceType()){
 		case Device::Type::PHONE:
-			extra = "PHONE";
+			type = "PHONE";
 			break;
 		case Device::Type::TAB:
-			extra = "TAB";
+			type = "TAB";
 			break;
 		case Device::Type::PC:
-			extra = "PC";
+			type = "PC";
 			break;
 		case Device::Type::TV:
 		default:
-			extra = "TV";
+			type = "TV";
 			break;
-		}
-    extra += ":"+m_Device.GetDeviceId()+":"+m_Device.GetDeviceName()+":"+m_Device.GetDisplayName();
+    }
+    
+    extra = "device_type=" + ReplaceAll(type, ' ', '%') + space +
+            "device_id=" + ReplaceAll(id, ' ', '%') + space +
+            "device_name=" + ReplaceAll(name, ' ', '%') + space +
+            "device_display_name=" + ReplaceAll(display_name, ' ', '%');
 	this->SendCommand(DiscoveryCommand::JOIN, extra);
+    debug(TAG, "extra = %s", extra.c_str());
 }
 
 void Discovery::SendJoinCommand(NPT_SocketAddress& target)
@@ -261,7 +272,6 @@ void Discovery::OnSearchCommandReceived(const NPT_SocketAddress& target, const s
 void Discovery::OnJoinCommandReceived(const NPT_SocketAddress& target, const std::string& extra)
 {
 	if(m_Device.GetDeviceType() == Device::Type::PHONE || m_Device.GetDeviceType() == Device::Type::TAB){
-		int first = extra.find_first_of(':');
 		debug(TAG, "OnJoinCommandReceived = %s", target.GetIpAddress().ToString().GetChars());
 		debug(TAG, "OnJoinCommandReceived extra= %s", extra.c_str());		
 	}

@@ -12,12 +12,19 @@
 #define TAG "Device"
 
 Device::Device(Type type)
-:m_Type(type)
+:m_DevType(type)
 {
-	m_DeviceName  = Hardware::Instance()->GetDeviceName();
-	m_DisplayName = m_DeviceName;
-    m_DeviceId = Hardware::Instance()->GetUDID();
-    debug("Device", "m_DeviceName = %s", m_DeviceName.c_str());
-    debug("Device", "m_DisplayName = %s", m_DisplayName.c_str());
-    debug("Device", "m_DeviceId = %s", m_DeviceId.c_str());
+    m_DevId = Hardware::Instance()->GetUDID();
+	m_DevName  = Hardware::Instance()->GetDeviceName();
+	m_DevDisplayName = m_DevName;
+
+    debug("Device", "m_DeviceId = %s", m_DevId.c_str());
+    debug("Device", "m_DeviceName = %s", m_DevName.c_str());
+    debug("Device", "m_DisplayName = %s", m_DevDisplayName.c_str());
+}
+
+Device::Device(Type type, const string& deviceId, const string& deviceName, const string& displayName)
+:m_DevType(type), m_DevId(deviceId), m_DevDisplayName(displayName)
+{
+    
 }

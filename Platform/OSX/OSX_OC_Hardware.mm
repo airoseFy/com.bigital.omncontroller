@@ -7,6 +7,8 @@
 //
 
 #import "OSX_OC_Hardware.h"
+#import <SystemConfiguration/SystemConfiguration.h>
+#import <SystemConfiguration/SCDynamicStore.h>
 
 @implementation OSX_OC_Hardware
 

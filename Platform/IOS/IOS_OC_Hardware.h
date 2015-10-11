@@ -11,4 +11,6 @@
 
 - (const char*) GetUDID;
 
+- (const char*) GetDeviceName;
+
 @end

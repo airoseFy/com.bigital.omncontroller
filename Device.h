@@ -59,7 +59,7 @@ public:
 		return std::move(str);
 	}
 	
-	static const Type StringToType(const string& typeStr)
+	static Type StringToType(const string& typeStr)
 	{
 		if("PHONE" == typeStr){
 			return Type::PHONE;
@@ -73,27 +73,26 @@ public:
 	}
 	
     explicit Device(Type type);
-	//Device(Type type, const string& deviceName, const string& displayName, const string& deviceId);
-	//Device(Type type, const string&& deviceName, const string&& displayName, const string&& deviceId);
+	Device(Type type, const string& deviceName, const string& displayName, const string& deviceId);
     virtual ~Device() = default;
     
     //Methods
-    inline Type  GetDeviceType() const { return m_Type; }
-    inline const string& GetDeviceName() const { return m_DeviceName; }
-    inline const string& GetDisplayName() const { return m_DisplayName; }
-    inline const string& GetDeviceId() const { return m_DeviceId; }
+    inline Type  GetDeviceType() const { return m_DevType; }
+    inline const string& GetDeviceName() const { return m_DevName; }
+    inline const string& GetDisplayName() const { return m_DevDisplayName; }
+    inline const string& GetDeviceId() const { return m_DevId; }
     inline const Resolution& GetResolution() const { return m_Res; }
     
-    inline void SetDisplayName(const string& displayName) { m_DisplayName = displayName; }
+    inline void SetDisplayName(const string& displayName) { m_DevDisplayName = displayName; }
     
     friend class DeviceManager;
     
     //Members
 private:
-    Type    m_Type;
-    string  m_DeviceName;
-    string  m_DisplayName;
-    string  m_DeviceId;
+    Type    m_DevType;
+    string  m_DevId;
+    string  m_DevName;
+    string  m_DevDisplayName;
     Resolution  m_Res;
 };
 
@@ -117,7 +116,7 @@ public:
 		for(auto it = m_DeviceList.cbegin();
             it != m_DeviceList.cend(); ++it)
 		{
-            if((*it).dev.m_DeviceId == device.m_DeviceId) break;
+            if((*it).dev.m_DevId == device.m_DevId) break;
 		}
         
         m_DeviceList.emplace_back(device, addr);
@@ -131,7 +130,9 @@ public:
     void PrintAllDevices(void) const
     {
         for (auto it = m_DeviceList.cbegin(); it != m_DeviceList.cend(); ++it) {
-            debug("DeviceManager", "Print DeviceId = %s", (*it).dev.m_DeviceId.c_str());
+            debug("DeviceManager", "Print DeviceId = %s", (*it).dev.m_DevId.c_str());
+            debug("DeviceManager", "Print DeviceId = %s", (*it).dev.m_DevName.c_str());
+            debug("DeviceManager", "Print DeviceId = %s", (*it).dev.m_DevDisplayName.c_str());
         }
     }
 	

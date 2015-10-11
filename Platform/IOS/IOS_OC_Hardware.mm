@@ -18,4 +18,11 @@
     return [udid UTF8String];
 }
 
+- (const char*) GetDeviceName
+{
+    NSString* deviceName = [[UIDevice currentDevice] name];
+    
+    return [deviceName UTF8String];
+}
+
 @end
