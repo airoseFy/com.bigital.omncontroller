@@ -18,9 +18,7 @@
 class IUIDelegate{
 public:
     virtual ~IUIDelegate() {}
-    
-    virtual void Init(void* context) = 0;
-    virtual void OnDeviceDataChanged(std::vector<Device> devices) = 0;
+    virtual void OnDeviceDataChanged(const std::vector<IP_Device>& devices) = 0;
 };
 
 class UIDelegate:public IUIDelegate{
@@ -29,14 +27,14 @@ public:
     ~UIDelegate()
     {
         if(m_Delegate != nullptr) delete m_Delegate;
-    }
+    }   
     
-    inline virtual void Init(void* context) { m_Delegate->Init(context); }
-    
-    inline virtual void OnDeviceDataChanged(std::vector<Device> devices)
+    inline virtual void OnDeviceDataChanged(const std::vector<IP_Device>& devices)
     {
-        m_Delegate->OnDeviceDataChanged(devices);
+        if(m_Delegate != nullptr)
+			m_Delegate->OnDeviceDataChanged(devices);
     }
+	
 protected:
     IUIDelegate*    m_Delegate;
 };

@@ -8,6 +8,7 @@
 
 //std::thread
 #include <thread>
+#include <unordered_map>
 #include "Common.h"
 #include "Log.h"
 #include "Utils.h"
@@ -272,8 +273,37 @@ void Discovery::OnSearchCommandReceived(const NPT_SocketAddress& target, const s
 void Discovery::OnJoinCommandReceived(const NPT_SocketAddress& target, const std::string& extra)
 {
 	if(m_Device.GetDeviceType() == Device::Type::PHONE || m_Device.GetDeviceType() == Device::Type::TAB){
-		debug(TAG, "OnJoinCommandReceived = %s", target.GetIpAddress().ToString().GetChars());
-		debug(TAG, "OnJoinCommandReceived extra= %s", extra.c_str());		
+		string device_type;
+		string device_id;
+		string device_name;
+		string device_display_name;
+		
+		unordered_map<string, string> devInfos;
+		for(auto prv = extra.cbegin(), cur = extra.cbegin(); cur <= extra.cend(); ++cur)
+		{			
+			if(cur == extra.cend() || *cur == ' '){
+				string info(prv, cur);
+				prv = cur + 1;
+				
+				int pos = info.find_first_of('=');
+				if(pos != string::npos)
+				{
+					devInfos[info.substr(0, pos)] = info.substr(pos+1);
+				}
+				debug(TAG, "info = %s", info.c_str());	
+			}
+		}
+		
+		for(auto it = devInfos.cbegin(); it != devInfos.cend(); ++it)
+		{
+			debug(TAG, "devInfos = %s", (*it).second.c_str());
+		}
+		
+		Device device(Device::StringToType(devInfos["device_type"]), devInfos["device_id"], 
+			devInfos["device_name"], devInfos["device_display_name"]);
+			
+		m_DevManager.AddDevice(device, target);
+		m_UIDelegate.OnDeviceDataChanged(m_DevManager.GetAllDevices());
 	}
 }
 

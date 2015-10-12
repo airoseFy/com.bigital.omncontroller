@@ -73,7 +73,7 @@ public:
 	}
 	
     explicit Device(Type type);
-	Device(Type type, const string& deviceName, const string& displayName, const string& deviceId);
+	Device(Type type, const string& deviceId, const string& deviceName, const string& displayName);
     virtual ~Device() = default;
     
     //Methods
@@ -98,12 +98,12 @@ private:
 
 struct IP_Device{
     IP_Device(const Device& device, const NPT_SocketAddress& addr)
-    :dev(device), sockAddr(addr)
+    :m_Dev(device), m_SockAddr(addr)
     {
         
     }
-    Device dev;
-    NPT_SocketAddress sockAddr;
+    Device m_Dev;
+    NPT_SocketAddress m_SockAddr;
 };
 
 class DeviceManager{
@@ -116,7 +116,7 @@ public:
 		for(auto it = m_DeviceList.cbegin();
             it != m_DeviceList.cend(); ++it)
 		{
-            if((*it).dev.m_DevId == device.m_DevId) break;
+            if((*it).m_Dev.m_DevId == device.m_DevId) break;
 		}
         
         m_DeviceList.emplace_back(device, addr);
@@ -126,13 +126,15 @@ public:
     
 	const Device* GetDevice(const string& deviceId) { return NULL; }
     
+	const vector<IP_Device>& GetAllDevices(void) { return m_DeviceList; }
+	
     //for debug
     void PrintAllDevices(void) const
     {
         for (auto it = m_DeviceList.cbegin(); it != m_DeviceList.cend(); ++it) {
-            debug("DeviceManager", "Print DeviceId = %s", (*it).dev.m_DevId.c_str());
-            debug("DeviceManager", "Print DeviceId = %s", (*it).dev.m_DevName.c_str());
-            debug("DeviceManager", "Print DeviceId = %s", (*it).dev.m_DevDisplayName.c_str());
+            debug("DeviceManager", "Print DeviceId = %s", (*it).m_Dev.m_DevId.c_str());
+            debug("DeviceManager", "Print DeviceName= %s", (*it).m_Dev.m_DevName.c_str());
+            debug("DeviceManager", "Print DeviceDisplayName = %s", (*it).m_Dev.m_DevDisplayName.c_str());
         }
     }
 	

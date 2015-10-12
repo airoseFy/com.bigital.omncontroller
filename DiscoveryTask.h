@@ -15,6 +15,7 @@
 #include <string>
 #include "NptSockets.h"
 #include "Device.h"
+#include "UIDelegate.h"
 
 /*-------------------------------------------------
 |	Constants
@@ -73,10 +74,11 @@ protected:
 	
 private:
           DeviceManager m_DevManager;
+		  UIDelegate m_UIDelegate;
 	const Device m_Device;
-		  NPT_UdpMulticastSocket	m_Socket;
+		  NPT_UdpMulticastSocket m_Socket;
 		  NPT_IpAddress	m_MuticastIpAddr;
-		  bool		m_Binded;
+		  bool	m_Binded;
 		  
 };
 

@@ -24,7 +24,7 @@ Device::Device(Type type)
 }
 
 Device::Device(Type type, const string& deviceId, const string& deviceName, const string& displayName)
-:m_DevType(type), m_DevId(deviceId), m_DevDisplayName(displayName)
+:m_DevType(type), m_DevId(deviceId), m_DevName(deviceName), m_DevDisplayName(displayName)
 {
     
 }

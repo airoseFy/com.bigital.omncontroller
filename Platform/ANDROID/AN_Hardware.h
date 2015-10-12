@@ -33,6 +33,7 @@ public:
 	
 public:
 	static void Init(JNIEnv* env, jobject context);
+	
 private:
 	static string m_UDID;
 	static string m_DeviceName;
