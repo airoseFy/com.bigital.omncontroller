@@ -19,10 +19,11 @@ public:
 	virtual void OnDeviceDataChanged(const std::vector<IP_Device>& devices);
 
 public:
-	static void SetupJNI(JNIEnv* env);
+	static void Init(JavaVM* jvm, jobject viewDelegate);
 	
 private:
-	static JNIEnv* m_Static_EnvPtr;
+	static JavaVM* m_Static_JVMPtr;
+	static jobject m_Static_Clazz;
 };
 
 #endif
