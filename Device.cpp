@@ -28,3 +28,20 @@ Device::Device(Type type, const string& deviceId, const string& deviceName, cons
 {
     
 }
+
+DeviceManager* DeviceManager::m_Instance = new DeviceManager();
+
+DeviceManager* DeviceManager::GetInstance()
+{
+	return m_Instance;
+}
+
+const IP_Device* DeviceManager::GetDevice(const string& deviceId) const
+{
+	for (auto it = m_DeviceList.cbegin(); it != m_DeviceList.cend(); ++it)
+	{
+		if((*it).m_Dev.m_DevId == deviceId) return &(*it);
+	}
+	
+	return nullptr;
+}

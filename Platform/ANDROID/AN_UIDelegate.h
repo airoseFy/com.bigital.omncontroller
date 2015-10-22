@@ -19,8 +19,8 @@ public:
 	virtual void OnDeviceDataChanged(const std::vector<IP_Device>& devices);
 
 public:
-	static void Init(JavaVM* jvm, jobject viewDelegate);
-	
+	static void Init(JNIEnv* env, jobject viewDelegate);
+	static void Release(JNIEnv* env);
 private:
 	static JavaVM* m_Static_JVMPtr;
 	static jobject m_Static_Clazz;

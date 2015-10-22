@@ -73,7 +73,6 @@ protected:
 	void SendCommand(DiscoveryCommand command, const std::string& extra);
 	
 private:
-          DeviceManager m_DevManager;
 		  UIDelegate m_UIDelegate;
 	const Device m_Device;
 		  NPT_UdpMulticastSocket m_Socket;

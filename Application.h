@@ -66,6 +66,21 @@ public:
 	}
 	virtual ~ICtrlApplication() {}
 	
+	void SetTarget(const char* udid)
+	{
+		std::string _udid(udid);
+		const IP_Device* ipDevice = DeviceManager::GetInstance()->GetDevice(_udid);
+		if(ipDevice != nullptr)
+		{
+			m_EventSender.SetTarget(ipDevice->m_SockAddr);
+		}
+	}
+	
+	void InputEvent(int type, int code, int value)
+	{
+		m_EventSender.PushEvent(type, code, value);
+	}
+	
 	virtual void OnCreate() 
 	{
 		m_DiscoveryTask.Start();

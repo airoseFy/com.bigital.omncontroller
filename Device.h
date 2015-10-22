@@ -108,9 +108,6 @@ struct IP_Device{
 
 class DeviceManager{
 public:
-     DeviceManager() = default;
-    ~DeviceManager() = default;
-	
 	inline void AddDevice(const Device& device, const NPT_SocketAddress& addr)
 	{
 		for(auto it = m_DeviceList.cbegin();
@@ -124,7 +121,7 @@ public:
 	
 	void RemoveDevice(const Device& device) {}
     
-	const Device* GetDevice(const string& deviceId) { return NULL; }
+	const IP_Device* GetDevice(const string& deviceId) const;
     
 	const vector<IP_Device>& GetAllDevices(void) { return m_DeviceList; }
 	
@@ -138,7 +135,16 @@ public:
         }
     }
 	
+protected:
+     DeviceManager() = default;
+    ~DeviceManager() = default;
+	static DeviceManager* m_Instance;
+
+public:
+	static DeviceManager* GetInstance();
+	
 private:
 	vector<IP_Device>	m_DeviceList;
 };
+
 #endif /* _DEVICE_H_ */

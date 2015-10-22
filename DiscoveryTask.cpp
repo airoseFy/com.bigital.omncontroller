@@ -139,6 +139,8 @@ void Discovery::Stop()
 	}
 	
 	m_Socket.LeaveGroup(m_MuticastIpAddr);
+	m_Socket.Cancel();
+	m_Binded = false;
 }
 
 DiscoveryCommand Discovery::ReceiveCommand(NPT_SocketAddress& target, std::string& extra)
@@ -302,8 +304,8 @@ void Discovery::OnJoinCommandReceived(const NPT_SocketAddress& target, const std
 		Device device(Device::StringToType(devInfos["device_type"]), devInfos["device_id"], 
 			devInfos["device_name"], devInfos["device_display_name"]);
 			
-		m_DevManager.AddDevice(device, target);
-		m_UIDelegate.OnDeviceDataChanged(m_DevManager.GetAllDevices());
+		DeviceManager::GetInstance()->AddDevice(device, target);
+		m_UIDelegate.OnDeviceDataChanged(DeviceManager::GetInstance()->GetAllDevices());
 	}
 }
 

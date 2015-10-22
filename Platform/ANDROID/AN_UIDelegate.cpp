@@ -9,13 +9,19 @@
 #include "Log.h"
 #include "AN_UIDelegate.h"
 
-JavaVM* AN_UIDelegate::m_Static_JVMPtr = nullptr;
+JavaVM* AN_UIDelegate::m_Static_JVMPtr;
 jobject AN_UIDelegate::m_Static_Clazz;
 
-void AN_UIDelegate::Init(JavaVM* jvm, jobject viewDelegate)
+void AN_UIDelegate::Init(JNIEnv* env, jobject viewDelegate)
 {
-	m_Static_JVMPtr = jvm;
-	m_Static_Clazz  = viewDelegate;
+	if(env->GetJavaVM(&m_Static_JVMPtr) == JNI_OK){
+		m_Static_Clazz = reinterpret_cast<jobject>(env->NewGlobalRef(viewDelegate));
+	}
+}
+
+void AN_UIDelegate::Release(JNIEnv* env)
+{
+	env->DeleteGlobalRef(m_Static_Clazz);
 }
 
 void AN_UIDelegate::OnDeviceDataChanged(const std::vector<IP_Device>& devices)
@@ -29,6 +35,7 @@ void AN_UIDelegate::OnDeviceDataChanged(const std::vector<IP_Device>& devices)
 	
 	if(m_Static_JVMPtr->AttachCurrentThread(&env, NULL) == JNI_OK)
 	{
+		debug("AN_UIDelegate", "AttachCurrentThread OK");
 		jclass viewDelegateCls;
 		jmethodID methodGetInstance;
 		jmethodID methodUpdateView;
@@ -54,7 +61,8 @@ void AN_UIDelegate::OnDeviceDataChanged(const std::vector<IP_Device>& devices)
 			jobjectArray deviceInfos = env->NewObjectArray(size, env->FindClass("java/lang/String"), env->NewStringUTF(""));
 			for(int i = 0; i < size; ++i)
 			{
-				env->SetObjectArrayElement(deviceInfos, i, env->NewStringUTF(devices[i].m_Dev.GetDeviceId().c_str()));
+				string info = devices[i].m_Dev.GetDeviceId()+" "+devices[i].m_SockAddr.GetIpAddress().ToString().GetChars();
+				env->SetObjectArrayElement(deviceInfos, i, env->NewStringUTF(info.c_str()));
 			}
 			
 			for(auto it = devices.cbegin(); it != devices.cend(); ++it)
@@ -68,6 +76,7 @@ void AN_UIDelegate::OnDeviceDataChanged(const std::vector<IP_Device>& devices)
 		}while(0);
 		
 		m_Static_JVMPtr->DetachCurrentThread();
+		debug("AN_UIDelegate", "DetachCurrentThread OK");
 	}	
 }
 
