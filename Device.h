@@ -110,10 +110,13 @@ class DeviceManager{
 public:
 	inline void AddDevice(const Device& device, const NPT_SocketAddress& addr)
 	{
-		for(auto it = m_DeviceList.cbegin();
-            it != m_DeviceList.cend(); ++it)
+		for(auto it = m_DeviceList.begin(); it != m_DeviceList.end(); ++it)
 		{
-            if((*it).m_Dev.m_DevId == device.m_DevId) break;
+            if((*it).m_Dev.m_DevId == device.m_DevId)
+			{
+				m_DeviceList.erase(it);	
+				break;
+			}
 		}
         
         m_DeviceList.emplace_back(device, addr);

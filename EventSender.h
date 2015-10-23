@@ -30,7 +30,7 @@ public:
 	virtual bool PushEvent(Event&& event) = 0;
     virtual void PollEvent() const = 0;
     virtual void SendEvent() const = 0;
-    virtual void SetTarget(NPT_SocketAddress& target) = 0;
+    virtual void SetTarget(const NPT_SocketAddress& target) = 0;
 };
 
 class EventSender:public IEventSender{
@@ -45,7 +45,7 @@ public:
 	virtual bool PushEvent(Event&& event);
 	virtual void PollEvent() const {}
 	virtual void SendEvent() const {}
-	virtual void SetTarget(NPT_SocketAddress& target) { m_Target = NPT_SocketAddress(target.GetIpAddress(), 1189);}
+	virtual void SetTarget(const NPT_SocketAddress& target) { m_Target = NPT_SocketAddress(target.GetIpAddress(), 1189);}
 	
 protected:
 	bool Condition() { return !m_CachedQueue.empty(); }

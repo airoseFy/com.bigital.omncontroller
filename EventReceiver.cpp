@@ -26,7 +26,7 @@ bool EventReceiver::Start()
 
 void EventReceiver::Stop()
 {
-	
+	m_Started = false;
 }
 
 bool EventReceiver::TryBind()
@@ -37,7 +37,7 @@ bool EventReceiver::TryBind()
 		return false;
 	}
 	
-	m_Socket.SetReadTimeout(200);
+	m_Socket.SetReadTimeout(1000);
 	return true;	
 }
 
@@ -62,18 +62,35 @@ void EventReceiver::RecvLoop()
 		if(NPT_SUCCEEDED(m_Socket.Receive(packet, &target)) && packet.GetDataSize() == size)
 		{
 			const NPT_Byte*  buffer = packet.GetData();
-			debug("EventReceiver", "Receive type = %d, code = %d, value = %d", buffer[0], buffer[1], buffer[2]);
+			std::unique_lock<std::mutex> lk(m_QueueMutex);
+			m_CachedQueue.emplace(0, buffer[0], buffer[1], buffer[2]);
+			m_Condition.notify_one();
 		}else{
 			debug("EventReceiver", "RecvLoop Receive Timeout!");
 		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}while(m_Started);
 }
 
 void EventReceiver::ConsumeLoop()
 {
 	debug("EventReceiver", "ConsumeLoop");
+	int type = 0;
+	int code = 0;
+	int value= 0;
+	
 	do{		
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		std::unique_lock<std::mutex> lk(m_CondMutex);
+		m_Condition.wait(lk);
+		
+		while(!m_CachedQueue.empty())
+		{
+			std::unique_lock<std::mutex> lk(m_QueueMutex);
+			type = m_CachedQueue.front().type;
+			code = m_CachedQueue.front().code;
+			value= m_CachedQueue.front().value;
+			debug("EventReceiver", "Receive type = %d, code = %d, value = %d", type, code, value);
+			m_EventHandler(type, code, value);
+			m_CachedQueue.pop();
+		}
 	}while(m_Started);
 }

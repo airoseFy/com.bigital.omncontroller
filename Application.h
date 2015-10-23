@@ -37,6 +37,11 @@ public:
 	
 	virtual ~IHostApplication() {}
 	
+	virtual void SetEventHandler(EventHandler event_handler)
+	{
+		m_EventReceiver.SetEventHandler(event_handler);
+	}
+	
 	virtual void OnCreate() 
 	{
 		m_DiscoveryTask.Start();

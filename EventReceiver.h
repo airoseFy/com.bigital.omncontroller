@@ -19,6 +19,8 @@
 #include "Event.h"
 #include "NptSockets.h"
 
+typedef std::function<bool(int, int, int)> EventHandler;
+
 class IEventReceiver{
 public:
     virtual ~IEventReceiver() {}
@@ -27,7 +29,7 @@ public:
     virtual void Stop()  = 0;
     virtual void ReceiveEvent() = 0;
     virtual void PollEvent() const = 0;
-    virtual void SetEventHandler() = 0;
+    virtual void SetEventHandler(EventHandler event_handler) = 0;
 };
 
 class EventReceiver:public IEventReceiver{
@@ -39,7 +41,7 @@ public:
 	virtual void Stop();
 	virtual void ReceiveEvent() {}
 	virtual void PollEvent() const{}
-	virtual void SetEventHandler() {}
+	virtual void SetEventHandler(EventHandler event_handler) { m_EventHandler = event_handler; }
 	
 protected:
 	virtual bool TryBind();
@@ -48,6 +50,7 @@ protected:
 	
 private:
 	bool			  	m_Started;
+	EventHandler		m_EventHandler;
 	NPT_UdpSocket	  	m_Socket;	
 	std::thread			m_RecvTask;
 	std::thread			m_ConsumeTask;

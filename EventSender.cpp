@@ -86,11 +86,10 @@ void EventSender::SendingLoop()
 	NPT_Byte buffer[3] = {0, 0, 0};
 	
 	do{
-		//debug("SendingLoop", "lock");
 		std::unique_lock<std::mutex> lk(m_CondMutex);
-		//debug("SendingLoop", "wait");
 		m_Condition.wait(lk);
 		while(!m_CachedQueue.empty()){
+			std::unique_lock<std::mutex> lk(m_QueueMutex);
 			buffer[0] = m_CachedQueue.front().type;
 			buffer[1] = m_CachedQueue.front().code;
 			buffer[2] = m_CachedQueue.front().value;
@@ -98,12 +97,10 @@ void EventSender::SendingLoop()
 				buffer[0],
 				buffer[1],
 				buffer[2]);
+			m_CachedQueue.pop();
+			
 			NPT_DataBuffer packet(buffer, 3);
 			m_Socket.Send(packet, &m_Target);
-			
-			//pop the consume event
-			std::unique_lock<std::mutex> lk(m_QueueMutex);
-			m_CachedQueue.pop();
 		}
 	}while(m_Started);
 }
